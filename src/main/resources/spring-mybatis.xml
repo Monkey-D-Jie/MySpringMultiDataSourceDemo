@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!--在项目启动的时候，加载resources目录下的properties文件，拿到外部的属性设置信息 -->
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:*.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--创建数据源dataSource对象并注入到SqlSessionFactoryBean对象中 【动态数据源管理】-->
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >-->
+        <!--<property name="driverClassName" value="${jdbc.driver}"/>-->
+        <!--<property name="url" value="${jdbc.url}"/>-->
+        <!--<property name="username" value="${jdbc.username}"/>-->
+        <!--<property name="password" value="${jdbc.password}"/>-->
+    <!--</bean>-->
+
+<!--声明两个分别指向mytest1和mytest2的数据源-->
+    <bean id="dataSource1" class="com.alibaba.druid.pool.DruidDataSource" scope="singleton">
+        <property name="driver" value="${jdbc.driver}"/>
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="url" value="${jdbc.url}" />
+    </bean>
+    <bean id="dataSource2" class="com.alibaba.druid.pool.DruidDataSource" scope="singleton">
+        <property name="driver" value="${jdbc.driver}"/>
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="url" value="${jdbc.url2}" />
+    </bean>
+
+    <!--多数据源配置声明-->
+    <bean id="dataSource" class="com.mydemo.multidatasources.datasource.RoutingDataSource">
+        <!-- 为targetDataSources注入两个数据源 -->
+        <property name="targetDataSources">
+            <map key-type="java.lang.String">
+                <entry key="ds1" value-ref="dataSource1"/>
+                <entry key="ds2" value-ref="dataSource2"/>
+            </map>
+        </property>
+        <!-- 为指定数据源RoutingDataSource注入默认的数据源-->
+        <property name="defaultTargetDataSource" ref="dataSource1"/>
+    </bean>
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <!--两种事务声明方式是只能2选其1，还是怎样呢？-->
+    <!-- 注解方式配置事物   -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!--
+   配置型事务，相比于声明型事务，作用点更细
+   有了这个配置后，还能再service层的实现方法上添加@Transactional的注解不？注意试下哈
+   状态：待测试
+   -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="insert*" propagation="REQUIRED"/>
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="update*" propagation="REQUIRED"/>
+            <tx:method name="delete*" propagation="REQUIRED"/>
+            <tx:method name="remove*" propagation="REQUIRED"/>
+            <tx:method name="add*" propagation="REQUIRED"/>
+            <tx:method name="find*" propagation="SUPPORTS"/>
+            <tx:method name="get*" propagation="SUPPORTS"/>
+        </tx:attributes>
+    </tx:advice>
+    <!--配置aop-->
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.mydemo.multidatasources..*Impl.*(..))" order="2"/>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.mydemo.multidatasources..*Impl.*(..))" order="3"/>
+    </aop:config>
+
+
+    <!-- 引入属性文件 -->
+    <context:property-placeholder location="classpath:config.properties" />
+
+    <!-- 自动扫描(自动注入) -->
+    <context:component-scan base-package="com.mydemo.multidatasources" annotation-config="true">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--<context:component-scan base-package="com.mydemo.multidatasources"/>-->
+
+    <!-- 自动扫描定时任务 -->
+    <task:annotation-driven/>
+    <!-- spring自动创建代理，植入切面，proxy-target-class属性，默认为false，表示使用jdk动态代理织入增强，
+    当配为<aop:aspectj-autoproxy poxy-target-class="true"/>时，表示使用CGLib动态代理技术织入增强。
+    不过即使proxy-target-class设置为false，如果目标类没有声明接口，
+    则spring将自动使用CGLib动态代理。 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+
+    <!--指定映射sql查询语句的mybatis-mapper文件-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:mybatis-mapper/*Mapper.xml</value>
+            </list>
+        </property>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+    </bean>
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- 配置扫描Mapper接口的包路径 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.mydemo.multidatasources.dao"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!--设置注解驱动的事务管理  -->
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+
+</beans>

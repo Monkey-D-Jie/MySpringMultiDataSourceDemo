@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mydemo.multidatasources.dao.UserDao">
+
+    <resultMap id="BaseResultMap" type="com.mydemo.multidatasources.entity.User">
+        <id column="userId" property="userId"/>
+        <result property="sex" column="sex"/>
+        <result property="userName" column="userName"/>
+        <result property="phone" column="phone"/>
+        <result property="password" column="password"/>
+    </resultMap>
+
+
+    <select id="queryUsers" resultMap="BaseResultMap" >
+        SELECT
+            user_id,
+            sex,
+            user_name,
+            PASSWORD,
+            phone
+        FROM
+            t_user
+    </select>
+
+    <!--<delete id="">-->
+    <!--</delete>-->
+
+
+    <!--<insert id="">-->
+    <!--</insert>-->
+
+    <!--<update id="">-->
+    <!--</update>-->
+
+
+</mapper>
