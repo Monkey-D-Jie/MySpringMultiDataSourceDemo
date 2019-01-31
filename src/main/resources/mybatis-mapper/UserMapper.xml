@@ -13,10 +13,10 @@
 
     <select id="queryUsers" resultMap="BaseResultMap" >
         SELECT
-            user_id,
+            user_id AS userId,
             sex,
-            user_name,
-            PASSWORD,
+            user_name AS userName,
+            password,
             phone
         FROM
             t_user

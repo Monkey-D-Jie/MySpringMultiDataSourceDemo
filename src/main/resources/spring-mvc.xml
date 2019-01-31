@@ -18,6 +18,7 @@
     <context:annotation-config/>
     <!--扫描包进行注入-->
     <context:component-scan base-package="com.mydemo.multidatasources" />
+
     <!-- 前端跨域访问支持-->
     <mvc:cors>
         <mvc:mapping path="/**" allowed-origins= "*" allowed-methods="POST, GET, OPTIONS, DELETE, PUT"

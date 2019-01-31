@@ -2,7 +2,7 @@
 <configuration status="off">
 	<Properties>
 		<property name="LOG_HOME">logs</property>
-		<property name="FILE_NAME">jf_exwsp_logs</property>
+		<property name="FILE_NAME">MySpringMultiDataSourceDemo</property>
 	</Properties>
 	<appenders>
 		<!--这个输出控制台的配置-->

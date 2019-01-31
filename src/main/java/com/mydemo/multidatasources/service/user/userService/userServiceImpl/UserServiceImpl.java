@@ -1,8 +1,10 @@
 package com.mydemo.multidatasources.service.user.userService.userServiceImpl;
 
+import com.mydemo.multidatasources.dao.UserDao;
 import com.mydemo.multidatasources.datasource.DataSource;
 import com.mydemo.multidatasources.entity.User;
 import com.mydemo.multidatasources.service.user.userService.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +20,15 @@ import java.util.List;
 @Service("userService")
 public class UserServiceImpl implements UserService {
 
-    //用自定义注解指定查询用的数据源
-    @DataSource("ds1")
+    @Autowired
+    private UserDao userDao;
+
+    /**
+     * 在这里，可以通过注解，手动的切换在spring-mybatis中注册的数据源。
+     */
+    @DataSource("ds2")
     @Override
     public List<User> getAllUsers() {
-        return null;
+        return this.userDao.queryUsers();
     }
 }

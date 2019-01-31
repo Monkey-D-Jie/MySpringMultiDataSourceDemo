@@ -12,14 +12,21 @@
        http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
 
     <!--在项目启动的时候，加载resources目录下的properties文件，拿到外部的属性设置信息 -->
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
+    <!--<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">-->
+    <bean id="propertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+    <property name="locations">
             <list>
-                <value>classpath:*.properties</value>
+                <!-- 以web程序启动这里可以这样设置-->
+                <!--<value>classpath: *.properties</value>-->
+                <!--这种就是web和单测试类的都行-->
+                <value>classpath:config.properties</value>
+                <value>classpath:jdbc.properties</value>
+                <value>classpath:redis.properties</value>
             </list>
         </property>
     </bean>
-
+    <!-- 引入属性文件 -->
+    <!--<context:property-placeholder location="classpath:jdbc.properties" />-->
     <!--创建数据源dataSource对象并注入到SqlSessionFactoryBean对象中 【动态数据源管理】-->
     <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" >-->
         <!--<property name="driverClassName" value="${jdbc.driver}"/>-->
@@ -30,13 +37,13 @@
 
 <!--声明两个分别指向mytest1和mytest2的数据源-->
     <bean id="dataSource1" class="com.alibaba.druid.pool.DruidDataSource" scope="singleton">
-        <property name="driver" value="${jdbc.driver}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="username" value="${jdbc.username}" />
         <property name="password" value="${jdbc.password}" />
         <property name="url" value="${jdbc.url}" />
     </bean>
     <bean id="dataSource2" class="com.alibaba.druid.pool.DruidDataSource" scope="singleton">
-        <property name="driver" value="${jdbc.driver}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
         <property name="username" value="${jdbc.username}" />
         <property name="password" value="${jdbc.password}" />
         <property name="url" value="${jdbc.url2}" />
@@ -85,15 +92,10 @@
         <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.mydemo.multidatasources..*Impl.*(..))" order="3"/>
     </aop:config>
 
-
-    <!-- 引入属性文件 -->
-    <context:property-placeholder location="classpath:config.properties" />
-
     <!-- 自动扫描(自动注入) -->
     <context:component-scan base-package="com.mydemo.multidatasources" annotation-config="true">
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
-    <!--<context:component-scan base-package="com.mydemo.multidatasources"/>-->
 
     <!-- 自动扫描定时任务 -->
     <task:annotation-driven/>
@@ -130,6 +132,5 @@
     </bean>
     <!--设置注解驱动的事务管理  -->
     <tx:annotation-driven transaction-manager="txManager"/>
-
 
 </beans>
