@@ -1,6 +1,7 @@
 package com.mydemo.multidatasources.service.userServiceImpl;
 
 
+import com.mydemo.multidatasources.datasource.DataSourceHolder;
 import com.mydemo.multidatasources.entity.User;
 import com.mydemo.multidatasources.service.user.userService.UserService;
 import org.junit.After;
@@ -87,9 +88,18 @@ public class UserServiceImplTest {
      */
     @Test
     public void testGetAllUsers2() throws Exception {
+        //手动设定数据源
+        DataSourceHolder.setDataSourceType("ds2");
+        /**
+         * 上面的代码对数据源的切换做了手动的设定，
+         * 一般的业务场景中，简单点的数据源配置，主要的信息都是放在了
+         * DataSourceAspect的中的切面上，
+         * 即在调用serviceImpl实现类的具体方法时会用到数据源的切换。
+         * 在本实例中，是通过 service方法上的注解指定到数据源的
+         */
         List<User> list = this.userService.getAllUsers();
         if( null != list && list.size() > 0){
-            System.out.println("查找到的用户信息为："+list.toString());
+            LOGGER.info("查找到的用户信息为："+list.toString());
         }
     }
 }

@@ -25,10 +25,17 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 在这里，可以通过注解，手动的切换在spring-mybatis中注册的数据源。
+     * 如果没有指定，则使用默认的数据源。
+     * 指定后，以这里指定的为准
      */
     @DataSource("ds2")
     @Override
     public List<User> getAllUsers() {
+        return this.userDao.queryUsers();
+    }
+
+    @Override
+    public List<User> getAllUsers2(String dsCode) {
         return this.userDao.queryUsers();
     }
 }

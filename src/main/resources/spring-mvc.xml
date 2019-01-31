@@ -53,8 +53,7 @@
         </mvc:message-converters>
     </mvc:annotation-driven>
 
-    <!-- 文件上传需要配置此解析器
-   -->
+    <!-- 文件上传需要配置此解析器 -->
     <bean id="multipartResolver"
           class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <!-- 默认编码 -->
@@ -67,11 +66,11 @@
     </bean>
 
     <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-        <!-- 自动给后面action的方法return的字符串加上前缀和后缀，变成一个可用的url地址 -->
+        <!-- 自动给后面action的方法return的字符串加上前缀和后缀，变成一个可用的url地址,struts中会用到 -->
         <property name="prefix" value="/WEB-INF/"/>
         <property name="suffix" value=".jsp"/>
     </bean>
-
+    <!--Spring 线程池的相关设置-->
     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
         <property name="corePoolSize" value="5"/> <!--核心线程数 -->
         <property name="maxPoolSize" value="20"/> <!--最大线程数 -->

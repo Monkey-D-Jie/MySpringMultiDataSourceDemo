@@ -15,4 +15,6 @@ import java.util.List;
 
 public interface UserService {
     List<User> getAllUsers();
+
+    List<User> getAllUsers2(String dsCode);
 }

@@ -37,6 +37,7 @@ public class DataSourceAspect {
     @Before(value="anyMethod()")
     public void before(JoinPoint joinPoint) throws Throwable {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String dsCode = (String) joinPoint.getArgs()[0];
         Method method = methodSignature.getMethod();
         //如果方法体上使用了DataSource注解
         if (method.isAnnotationPresent(DataSource.class)) {
@@ -44,6 +45,8 @@ public class DataSourceAspect {
             DataSource datasource = method.getAnnotation(DataSource.class);
             //将方法体上的注解的值赋予给DataSourceHolder数据源持有类
             DataSourceHolder.setDataSourceType(datasource.value());
+        }else if(dsCode != null){
+            DataSourceHolder.setDataSourceType(dsCode);
         }
     }
 

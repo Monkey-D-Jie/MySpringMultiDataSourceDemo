@@ -10,6 +10,7 @@ package com.mydemo.multidatasources.datasource;
  */
 
 public class DataSourceHolder {
+    //线程本地环境
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<String>();
 
     /**

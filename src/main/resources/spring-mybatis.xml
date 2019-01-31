@@ -58,7 +58,9 @@
                 <entry key="ds2" value-ref="dataSource2"/>
             </map>
         </property>
-        <!-- 为指定数据源RoutingDataSource注入默认的数据源-->
+        <!-- 为指定数据源RoutingDataSource注入默认的数据源，如果不指定的话，
+        在查询时，直接调用dao层方法，因为未指明数据源，就会抛出 do not lookup database key的错误
+        -->
         <property name="defaultTargetDataSource" ref="dataSource1"/>
     </bean>
     <!-- 配置事务管理器 -->
